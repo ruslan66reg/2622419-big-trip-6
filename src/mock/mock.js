@@ -1,3 +1,5 @@
+import {nanoid} from 'nanoid';
+
 const mockDestinations = [
   { id: '1', description: 'Chamonix, is a beautiful city, a true asian pearl.', name: 'Chamonix', pictures: [{ src: 'https://loremflickr.com/248/152?random=1', description: 'Chamonix parliament building' }] },
   { id: '2', description: 'Geneva is a city in Switzerland that lies at the southern tip of expansive Lac Léman.', name: 'Geneva', pictures: [{ src: 'https://loremflickr.com/248/152?random=2', description: 'Geneva lake' }] }
@@ -13,6 +15,13 @@ const mockPoints = [
   { id: '2', basePrice: 800, dateFrom: '2019-07-11T22:55:56.845Z', dateTo: '2019-07-12T11:22:13.375Z', destination: '2', isFavorite: true, offers: ['1'], type: 'flight' }
 ];
 
-export const getRandomPoint = () => mockPoints[Math.floor(Math.random() * mockPoints.length)];
+export const getRandomPoint = () => {
+  const randomPoint = mockPoints[Math.floor(Math.random() * mockPoints.length)];
+  return {
+    ...randomPoint,
+    id: nanoid() // Генерируем уникальный ID для каждой карточки
+  };
+};
+
 export const getMockDestinations = () => mockDestinations;
 export const getMockOffers = () => mockOffers;
