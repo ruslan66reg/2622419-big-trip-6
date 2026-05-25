@@ -1,21 +1,23 @@
 import {render} from '../framework/render.js';
-import SortView from '../view/sort-view.js';
+import SortView, {SortType} from '../view/sort-view.js';
 import EventListView from '../view/event-list-view.js';
 import NoPointView from '../view/no-point-view.js';
 import PointPresenter from './point-presenter.js';
+import {sortPointByPrice, sortPointByTime, sortPointByDay} from '../utils/sort.js';
 
 export default class BoardPresenter {
   #boardContainer = null;
   #pointsModel = null;
 
   #eventListComponent = new EventListView();
-  #sortComponent = new SortView();
+  #sortComponent = null; // Убрали new SortView() отсюда
   #noPointComponent = new NoPointView();
 
   #boardPoints = [];
   #boardDestinations = [];
 
   #pointPresenters = new Map();
+  #currentSortType = SortType.DAY; // Сортировка по умолчанию
 
   constructor({boardContainer, pointsModel}) {
     this.#boardContainer = boardContainer;
@@ -25,6 +27,9 @@ export default class BoardPresenter {
   init() {
     this.#boardPoints = [...this.#pointsModel.getPoints()];
     this.#boardDestinations = [...this.#pointsModel.getDestinations()];
+
+    // При старте приложения сортируем точки по дням
+    this.#boardPoints.sort(sortPointByDay);
 
     this.#renderBoard();
   }
@@ -41,7 +46,44 @@ export default class BoardPresenter {
     this.#pointPresenters.get(updatedPoint.id).init(updatedPoint, destination);
   };
 
+  #sortPoints(sortType) {
+    // В зависимости от типа сортировки применяем нужную функцию
+    switch (sortType) {
+      case SortType.TIME:
+        this.#boardPoints.sort(sortPointByTime);
+        break;
+      case SortType.PRICE:
+        this.#boardPoints.sort(sortPointByPrice);
+        break;
+      case SortType.DAY:
+      default:
+        this.#boardPoints.sort(sortPointByDay);
+    }
+    // Запоминаем текущую сортировку
+    this.#currentSortType = sortType;
+  }
+
+  #handleSortTypeChange = (sortType) => {
+    // Если пользователь кликнул по текущей сортировке — ничего не делаем
+    if (this.#currentSortType === sortType) {
+      return;
+    }
+
+    // Сортируем точки
+    this.#sortPoints(sortType);
+
+    // Очищаем старый список
+    this.#clearPointList();
+
+    // Рисуем новый отсортированный список
+    this.#renderPoints();
+  };
+
   #renderSort() {
+    // Создаем компонент сортировки с передачей колбэка
+    this.#sortComponent = new SortView({
+      onSortTypeChange: this.#handleSortTypeChange
+    });
     render(this.#sortComponent, this.#boardContainer);
   }
 
