@@ -1,7 +1,7 @@
 import {render, replace, remove} from '../framework/render.js';
 import EventView from '../view/event-view.js';
 import EventEditView from '../view/event-edit-view.js';
-import {UserAction, UpdateType} from '../const.js'; // Подключили команды
+import {UserAction, UpdateType} from '../const.js';
 
 const Mode = {
   DEFAULT: 'DEFAULT',
@@ -46,7 +46,7 @@ export default class PointPresenter {
       offers: allOffers,
       onFormSubmit: this.#handleFormSubmit,
       onRollupClick: this.#handleRollupClick,
-      onDeleteClick: this.#handleDeleteClick, // Передали функцию удаления в форму!
+      onDeleteClick: this.#handleDeleteClick,
     });
 
     if (prevPointComponent === null || prevPointEditComponent === null) {
@@ -103,7 +103,6 @@ export default class PointPresenter {
     this.#replaceCardToForm();
   };
 
-  // Говорим: "Обнови точку (изменилась звездочка)"
   #handleFavoriteClick = () => {
     this.#handleDataChange(
       UserAction.UPDATE_POINT,
@@ -112,7 +111,6 @@ export default class PointPresenter {
     );
   };
 
-  // Говорим: "Обнови точку (сохранили форму)"
   #handleFormSubmit = (point) => {
     this.#handleDataChange(
       UserAction.UPDATE_POINT,
@@ -122,7 +120,6 @@ export default class PointPresenter {
     this.#replaceFormToCard();
   };
 
-  // Говорим: "УДАЛИ точку!"
   #handleDeleteClick = (point) => {
     this.#handleDataChange(
       UserAction.DELETE_POINT,

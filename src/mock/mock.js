@@ -19,7 +19,7 @@ export const getRandomPoint = () => {
   const randomPoint = mockPoints[Math.floor(Math.random() * mockPoints.length)];
   return {
     ...randomPoint,
-    id: nanoid() // Генерируем уникальный ID для каждой карточки
+    id: nanoid() 
   };
 };
 

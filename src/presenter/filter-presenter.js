@@ -55,7 +55,6 @@ export default class FilterPresenter {
     if (this.#filterModel.filter === filterType) {
       return;
     }
-    // Говорим приложению: "Фильтр сменился, это MAJOR обновление (перерисовываем всё)"
     this.#filterModel.setFilter(UpdateType.MAJOR, filterType);
   };
 }

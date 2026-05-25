@@ -17,7 +17,6 @@ const FilterType = {
   PAST: 'past',
 };
 
-// Шаблон пустой точки для создания новой карточки
 const BLANK_POINT = {
   basePrice: 0,
   dateFrom: new Date(),

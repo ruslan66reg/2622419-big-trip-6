@@ -92,12 +92,12 @@ export default class EventEditView extends AbstractStatefulView {
   #offers = null;
   #handleFormSubmit = null;
   #handleRollupClick = null;
-  #handleDeleteClick = null; // Добавили обработчик удаления
+  #handleDeleteClick = null;
 
   #datepickerFrom = null;
   #datepickerTo = null;
 
-  constructor({point, destinations, offers, onFormSubmit, onRollupClick, onDeleteClick}) { // Добавили onDeleteClick
+  constructor({point, destinations, offers, onFormSubmit, onRollupClick, onDeleteClick}) {
     super();
     this._setState(EventEditView.parsePointToState(point));
     this.#destinations = destinations;
@@ -136,7 +136,6 @@ export default class EventEditView extends AbstractStatefulView {
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#rollupClickHandler);
     this.element.querySelector('.event__type-group').addEventListener('change', this.#typeChangeHandler);
 
-    // Слушатели для валидации и удаления
     this.element.querySelector('.event__input--destination').addEventListener('change', this.#destinationChangeHandler);
     this.element.querySelector('.event__input--price').addEventListener('input', this.#priceInputHandler);
     this.element.querySelector('.event__reset-btn').addEventListener('click', this.#formDeleteClickHandler);
@@ -193,7 +192,6 @@ export default class EventEditView extends AbstractStatefulView {
     evt.preventDefault();
     const selectedDestination = this.#destinations.find((dest) => dest.name === evt.target.value);
 
-    // Если ввели фигню, сбрасываем инпут
     if (!selectedDestination) {
       evt.target.value = '';
       return;
@@ -206,7 +204,6 @@ export default class EventEditView extends AbstractStatefulView {
 
   #priceInputHandler = (evt) => {
     evt.preventDefault();
-    // Стираем всё, кроме цифр
     evt.target.value = evt.target.value.replace(/\D/g, '');
     this._setState({
       basePrice: parseInt(evt.target.value, 10) || 0,

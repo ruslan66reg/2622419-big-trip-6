@@ -8,7 +8,6 @@ export const SortType = {
   OFFERS: 'offers'
 };
 
-// Передаем текущую сортировку в шаблон
 function createSortTemplate(currentSortType) {
   return (
     `<form class="trip-events__trip-sort  trip-sort" action="#" method="get">
@@ -42,9 +41,8 @@ function createSortTemplate(currentSortType) {
 
 export default class SortView extends AbstractView {
   #handleSortTypeChange = null;
-  #currentSortType = null; // Добавили свойство
+  #currentSortType = null;
 
-  // Добавили currentSortType в конструктор
   constructor({currentSortType, onSortTypeChange}) {
     super();
     this.#currentSortType = currentSortType;
@@ -53,17 +51,14 @@ export default class SortView extends AbstractView {
   }
 
   get template() {
-    // Передаем свойство в функцию
     return createSortTemplate(this.#currentSortType);
   }
 
   #sortTypeChangeHandler = (evt) => {
-    // Реагируем только на клики по инпутам
     if (evt.target.tagName !== 'INPUT') {
       return;
     }
 
-    // Защита: если у элемента нет data-sort-type (Event или Offers), просто выходим и ничего не делаем
     if (!evt.target.dataset.sortType) {
       return;
     }

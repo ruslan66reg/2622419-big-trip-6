@@ -3,13 +3,11 @@ import {getRandomPoint, getMockDestinations, getMockOffers} from '../mock/mock.j
 
 const POINT_COUNT = 5;
 
-// Наследуемся от Observable
 export default class PointsModel extends Observable {
   #points = Array.from({length: POINT_COUNT}, getRandomPoint);
   #destinations = getMockDestinations();
   #offers = getMockOffers();
 
-  // Превращаем старые методы getPoints() в геттеры (теперь обращаемся к ним как this.pointsModel.points)
   get points() {
     return this.#points;
   }
@@ -22,7 +20,6 @@ export default class PointsModel extends Observable {
     return this.#offers;
   }
 
-  // Метод обновления точки (когда нажали Save в форме редактирования)
   updatePoint(updateType, update) {
     const index = this.#points.findIndex((point) => point.id === update.id);
 
@@ -36,11 +33,9 @@ export default class PointsModel extends Observable {
       ...this.#points.slice(index + 1),
     ];
 
-    // Оповещаем презентеры, что данные изменились
     this._notify(updateType, update);
   }
 
-  // Метод добавления новой точки
   addPoint(updateType, update) {
     this.#points = [
       update,
@@ -50,7 +45,6 @@ export default class PointsModel extends Observable {
     this._notify(updateType, update);
   }
 
-  // Метод удаления точки (когда нажали Delete)
   deletePoint(updateType, update) {
     const index = this.#points.findIndex((point) => point.id === update.id);
 

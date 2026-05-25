@@ -1,8 +1,7 @@
 import AbstractView from '../framework/view/abstract-view.js';
-import {humanizePointDate, humanizePointTime, getPointDuration} from '../utils/date.js'; // Импортируем утилиты
+import {humanizePointDate, humanizePointTime, getPointDuration} from '../utils/date.js';
 
 function createEventTemplate(point, destination) {
-  // Вытаскиваем даты из объекта point
   const {type, basePrice, isFavorite, dateFrom, dateTo} = point;
   const {name} = destination;
   const favoriteClassName = isFavorite ? 'event__favorite-btn--active' : '';

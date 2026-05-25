@@ -1,7 +1,6 @@
 import dayjs from 'dayjs';
 import {FilterType} from '../const.js';
 
-// Объект с функциями фильтрации
 const filter = {
   [FilterType.EVERYTHING]: (points) => points,
 

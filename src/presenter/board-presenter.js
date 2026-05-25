@@ -3,7 +3,7 @@ import SortView, {SortType} from '../view/sort-view.js';
 import EventListView from '../view/event-list-view.js';
 import NoPointView from '../view/no-point-view.js';
 import PointPresenter from './point-presenter.js';
-import NewPointPresenter from './new-point-presenter.js'; // Подключили презентер
+import NewPointPresenter from './new-point-presenter.js';
 import {sortPointByPrice, sortPointByTime, sortPointByDay} from '../utils/sort.js';
 import {filter} from '../utils/filter.js';
 import {UserAction, UpdateType, FilterType} from '../const.js';
@@ -18,7 +18,7 @@ export default class BoardPresenter {
   #noPointComponent = null;
 
   #pointPresenters = new Map();
-  #newPointPresenter = null; // Переменная для создания
+  #newPointPresenter = null;
   #currentSortType = SortType.DAY;
 
   constructor({boardContainer, pointsModel, filterModel, onNewPointDestroy}) {
@@ -26,7 +26,6 @@ export default class BoardPresenter {
     this.#pointsModel = pointsModel;
     this.#filterModel = filterModel;
 
-    // Инициализируем презентер новой точки
     this.#newPointPresenter = new NewPointPresenter({
       pointListContainer: this.#eventListComponent.element,
       onDataChange: this.#handleViewAction,
@@ -57,7 +56,6 @@ export default class BoardPresenter {
     this.#renderBoard();
   }
 
-  // Метод, который вызывается при клике на кнопку "New Event"
   createPoint() {
     this.#currentSortType = SortType.DAY;
     this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
@@ -65,7 +63,7 @@ export default class BoardPresenter {
   }
 
   #handleModeChange = () => {
-    this.#newPointPresenter.destroy(); // Закрываем форму добавления, если открыли редактирование
+    this.#newPointPresenter.destroy();
     this.#pointPresenters.forEach((presenter) => presenter.resetView());
   };
 
@@ -109,9 +107,9 @@ export default class BoardPresenter {
     this.#renderBoard();
   };
 
-#renderSort() {
+  #renderSort() {
     this.#sortComponent = new SortView({
-      currentSortType: this.#currentSortType, // Вот эта новая строчка!
+      currentSortType: this.#currentSortType,
       onSortTypeChange: this.#handleSortTypeChange
     });
     render(this.#sortComponent, this.#boardContainer);
@@ -140,7 +138,7 @@ export default class BoardPresenter {
   }
 
   #clearBoard({resetSortType = false} = {}) {
-    this.#newPointPresenter.destroy(); // Уничтожаем форму при перерисовке (например, при смене фильтра)
+    this.#newPointPresenter.destroy();
     this.#pointPresenters.forEach((presenter) => presenter.destroy());
     this.#pointPresenters.clear();
 
