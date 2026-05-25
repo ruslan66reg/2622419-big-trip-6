@@ -200,7 +200,6 @@ export default class EventEditView extends AbstractStatefulView {
     evt.preventDefault();
     const selectedDestination = this.#destinations.find((dest) => dest.name === evt.target.value);
 
-    // Если ввели фигню или стерли город — сбрасываем его из стейта
     if (!selectedDestination) {
       evt.target.value = '';
       this.updateElement({
@@ -225,7 +224,6 @@ export default class EventEditView extends AbstractStatefulView {
 
   #checkSubmitButtonValidity() {
     const submitBtn = this.element.querySelector('.event__save-btn');
-    // Включаем или выключаем кнопку без полной перерисовки компонента
     submitBtn.disabled = !this._state.dateFrom || !this._state.dateTo || !this._state.basePrice || !this._state.destination;
   }
 

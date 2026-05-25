@@ -62,7 +62,6 @@ export default class PointsApiService extends ApiService {
       'type': point.type,
     };
 
-    // Отправляем ID только если он реально есть (при редактировании).
     if (point.id) {
       adaptedPoint.id = point.id;
     }
