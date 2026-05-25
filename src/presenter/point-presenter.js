@@ -16,7 +16,6 @@ export default class PointPresenter {
   #pointEditComponent = null;
 
   #point = null;
-  #destination = null;
   #mode = Mode.DEFAULT;
 
   constructor({pointListContainer, onDataChange, onModeChange}) {
@@ -25,23 +24,26 @@ export default class PointPresenter {
     this.#handleModeChange = onModeChange;
   }
 
-  init(point, destination) {
+  init(point, allDestinations, allOffers) {
     this.#point = point;
-    this.#destination = destination;
 
     const prevPointComponent = this.#pointComponent;
     const prevPointEditComponent = this.#pointEditComponent;
 
+    // Находим пункт назначения конкретно для этой карточки
+    const currentDestination = allDestinations.find((dest) => dest.id === this.#point.destination);
+
     this.#pointComponent = new EventView({
       point: this.#point,
-      destination: this.#destination,
+      destination: currentDestination,
       onEditClick: this.#handleEditClick,
       onFavoriteClick: this.#handleFavoriteClick,
     });
 
     this.#pointEditComponent = new EventEditView({
       point: this.#point,
-      destination: this.#destination,
+      destinations: allDestinations, // Передаем все города
+      offers: allOffers,             // Передаем все опции
       onFormSubmit: this.#handleFormSubmit,
       onRollupClick: this.#handleRollupClick,
     });
@@ -70,6 +72,7 @@ export default class PointPresenter {
 
   resetView() {
     if (this.#mode !== Mode.DEFAULT) {
+      this.#pointEditComponent.reset(this.#point); // Сбрасываем состояние формы до исходных данных точки
       this.#replaceFormToCard();
     }
   }
@@ -90,6 +93,7 @@ export default class PointPresenter {
   #escKeyDownHandler = (evt) => {
     if (evt.key === 'Escape') {
       evt.preventDefault();
+      this.#pointEditComponent.reset(this.#point); // Сбрасываем форму при закрытии по Esc
       this.#replaceFormToCard();
     }
   };
@@ -108,6 +112,7 @@ export default class PointPresenter {
   };
 
   #handleRollupClick = () => {
+    this.#pointEditComponent.reset(this.#point); // Сбрасываем форму при закрытии по стрелке вверх
     this.#replaceFormToCard();
   };
 }

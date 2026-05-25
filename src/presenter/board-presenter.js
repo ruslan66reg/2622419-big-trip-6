@@ -10,14 +10,15 @@ export default class BoardPresenter {
   #pointsModel = null;
 
   #eventListComponent = new EventListView();
-  #sortComponent = null; // Убрали new SortView() отсюда
+  #sortComponent = null;
   #noPointComponent = new NoPointView();
 
   #boardPoints = [];
   #boardDestinations = [];
+  #boardOffers = []; // Добавляем массив для опций
 
   #pointPresenters = new Map();
-  #currentSortType = SortType.DAY; // Сортировка по умолчанию
+  #currentSortType = SortType.DAY;
 
   constructor({boardContainer, pointsModel}) {
     this.#boardContainer = boardContainer;
@@ -27,8 +28,8 @@ export default class BoardPresenter {
   init() {
     this.#boardPoints = [...this.#pointsModel.getPoints()];
     this.#boardDestinations = [...this.#pointsModel.getDestinations()];
+    this.#boardOffers = [...this.#pointsModel.getOffers()]; // Вытаскиваем опции из модели
 
-    // При старте приложения сортируем точки по дням
     this.#boardPoints.sort(sortPointByDay);
 
     this.#renderBoard();
@@ -42,12 +43,10 @@ export default class BoardPresenter {
     this.#boardPoints = this.#boardPoints.map((point) =>
       point.id === updatedPoint.id ? updatedPoint : point
     );
-    const destination = this.#boardDestinations.find((dest) => dest.id === updatedPoint.destination);
-    this.#pointPresenters.get(updatedPoint.id).init(updatedPoint, destination);
+    this.#pointPresenters.get(updatedPoint.id).init(updatedPoint, this.#boardDestinations, this.#boardOffers);
   };
 
   #sortPoints(sortType) {
-    // В зависимости от типа сортировки применяем нужную функцию
     switch (sortType) {
       case SortType.TIME:
         this.#boardPoints.sort(sortPointByTime);
@@ -59,28 +58,20 @@ export default class BoardPresenter {
       default:
         this.#boardPoints.sort(sortPointByDay);
     }
-    // Запоминаем текущую сортировку
     this.#currentSortType = sortType;
   }
 
   #handleSortTypeChange = (sortType) => {
-    // Если пользователь кликнул по текущей сортировке — ничего не делаем
     if (this.#currentSortType === sortType) {
       return;
     }
 
-    // Сортируем точки
     this.#sortPoints(sortType);
-
-    // Очищаем старый список
     this.#clearPointList();
-
-    // Рисуем новый отсортированный список
     this.#renderPoints();
   };
 
   #renderSort() {
-    // Создаем компонент сортировки с передачей колбэка
     this.#sortComponent = new SortView({
       onSortTypeChange: this.#handleSortTypeChange
     });
@@ -91,21 +82,21 @@ export default class BoardPresenter {
     render(this.#noPointComponent, this.#boardContainer);
   }
 
-  #renderPoint(point, destination) {
+  #renderPoint(point) {
     const pointPresenter = new PointPresenter({
       pointListContainer: this.#eventListComponent.element,
       onDataChange: this.#handlePointChange,
       onModeChange: this.#handleModeChange
     });
 
-    pointPresenter.init(point, destination);
+    // Передаем саму точку, все города и все опции
+    pointPresenter.init(point, this.#boardDestinations, this.#boardOffers);
     this.#pointPresenters.set(point.id, pointPresenter);
   }
 
   #renderPoints() {
     for (let i = 0; i < this.#boardPoints.length; i++) {
-      const destination = this.#boardDestinations.find((dest) => dest.id === this.#boardPoints[i].destination);
-      this.#renderPoint(this.#boardPoints[i], destination);
+      this.#renderPoint(this.#boardPoints[i]);
     }
   }
 
