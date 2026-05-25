@@ -1,7 +1,8 @@
-import {render, remove} from '../framework/render.js';
+import {render, remove, RenderPosition} from '../framework/render.js';
 import SortView, {SortType} from '../view/sort-view.js';
 import EventListView from '../view/event-list-view.js';
 import NoPointView from '../view/no-point-view.js';
+import LoadingView from '../view/loading-view.js';
 import PointPresenter from './point-presenter.js';
 import NewPointPresenter from './new-point-presenter.js';
 import {sortPointByPrice, sortPointByTime, sortPointByDay} from '../utils/sort.js';
@@ -14,12 +15,14 @@ export default class BoardPresenter {
   #filterModel = null;
 
   #eventListComponent = new EventListView();
+  #loadingComponent = new LoadingView();
   #sortComponent = null;
   #noPointComponent = null;
 
   #pointPresenters = new Map();
   #newPointPresenter = null;
   #currentSortType = SortType.DAY;
+  #isLoading = true;
 
   constructor({boardContainer, pointsModel, filterModel, onNewPointDestroy}) {
     this.#boardContainer = boardContainer;
@@ -94,6 +97,11 @@ export default class BoardPresenter {
         this.#clearBoard({resetSortType: true});
         this.#renderBoard();
         break;
+      case UpdateType.INIT:
+        this.#isLoading = false;
+        remove(this.#loadingComponent);
+        this.#renderBoard();
+        break;
     }
   };
 
@@ -112,7 +120,11 @@ export default class BoardPresenter {
       currentSortType: this.#currentSortType,
       onSortTypeChange: this.#handleSortTypeChange
     });
-    render(this.#sortComponent, this.#boardContainer);
+    render(this.#sortComponent, this.#boardContainer, RenderPosition.AFTERBEGIN);
+  }
+
+  #renderLoading() {
+    render(this.#loadingComponent, this.#boardContainer, RenderPosition.AFTERBEGIN);
   }
 
   #renderPoint(point) {
@@ -134,7 +146,7 @@ export default class BoardPresenter {
     this.#noPointComponent = new NoPointView({
       filterType: this.#filterModel.filter
     });
-    render(this.#noPointComponent, this.#boardContainer);
+    render(this.#noPointComponent, this.#boardContainer, RenderPosition.AFTERBEGIN);
   }
 
   #clearBoard({resetSortType = false} = {}) {
@@ -143,6 +155,8 @@ export default class BoardPresenter {
     this.#pointPresenters.clear();
 
     remove(this.#sortComponent);
+    remove(this.#loadingComponent);
+
     if (this.#noPointComponent) {
       remove(this.#noPointComponent);
     }
@@ -153,6 +167,13 @@ export default class BoardPresenter {
   }
 
   #renderBoard() {
+    render(this.#eventListComponent, this.#boardContainer);
+
+    if (this.#isLoading) {
+      this.#renderLoading();
+      return;
+    }
+
     const points = this.points;
     if (points.length === 0) {
       this.#renderNoPoints();
@@ -160,7 +181,6 @@ export default class BoardPresenter {
     }
 
     this.#renderSort();
-    render(this.#eventListComponent, this.#boardContainer);
     this.#renderPoints(points);
   }
 }

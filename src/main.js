@@ -2,13 +2,20 @@ import BoardPresenter from './presenter/board-presenter.js';
 import FilterPresenter from './presenter/filter-presenter.js';
 import PointsModel from './model/points-model.js';
 import FilterModel from './model/filter-model.js';
+import PointsApiService from './points-api-service.js';
+
+const AUTHORIZATION = 'Basic er883jdzbdw1234';
+const END_POINT = 'https://24.objects.htmlacademy.pro/big-trip';
 
 const headerElement = document.querySelector('.page-header');
 const filtersElement = headerElement.querySelector('.trip-controls__filters');
 const eventsElement = document.querySelector('.trip-events');
 const newEventButtonComponent = document.querySelector('.trip-main__event-add-btn');
 
-const pointsModel = new PointsModel();
+const pointsModel = new PointsModel({
+  pointsApiService: new PointsApiService(END_POINT, AUTHORIZATION)
+});
+
 const filterModel = new FilterModel();
 
 const handleNewPointFormClose = () => {
@@ -36,3 +43,4 @@ newEventButtonComponent.addEventListener('click', (evt) => {
 
 filterPresenter.init();
 boardPresenter.init();
+pointsModel.init();

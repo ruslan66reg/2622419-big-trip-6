@@ -6,7 +6,6 @@ export default class NewPointPresenter {
   #pointListContainer = null;
   #handleDataChange = null;
   #handleDestroy = null;
-
   #pointEditComponent = null;
 
   constructor({pointListContainer, onDataChange, onDestroy}) {
@@ -40,7 +39,6 @@ export default class NewPointPresenter {
     }
 
     this.#handleDestroy();
-
     remove(this.#pointEditComponent);
     this.#pointEditComponent = null;
 
@@ -51,7 +49,7 @@ export default class NewPointPresenter {
     this.#handleDataChange(
       UserAction.ADD_POINT,
       UpdateType.MINOR,
-      {...point, id: crypto.randomUUID()}
+      point
     );
     this.destroy();
   };
