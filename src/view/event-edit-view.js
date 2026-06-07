@@ -146,7 +146,7 @@ function createEventEditTemplate(state, allDestinations, allOffers) {
             ${deleteCancelText}
           </button>
 
-          ${id ? `<button class="event__rollup-btn" type="button"><span class="visually-hidden">Open event</span></button>` : ''}
+          ${id ? '<button class="event__rollup-btn" type="button"><span class="visually-hidden">Open event</span></button>' : ''}
         </header>
 
         <section class="event__details">
