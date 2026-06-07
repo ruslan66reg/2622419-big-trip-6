@@ -1,8 +1,42 @@
 import AbstractView from '../framework/view/abstract-view.js';
 import {humanizePointDate, humanizePointTime, getPointDuration} from '../utils/date.js';
 
-function createEventTemplate(point, destination) {
-  const {type, basePrice, isFavorite, dateFrom, dateTo} = point;
+function createEventOffersTemplate(pointOffers, allOffers, type) {
+  if (!pointOffers || pointOffers.length === 0 || !allOffers || allOffers.length === 0) {
+    return '';
+  }
+
+  const typeOffersObj = allOffers.find((off) => off.type === type);
+  if (!typeOffersObj || !typeOffersObj.offers) {
+    return '';
+  }
+
+  const pointOfferIds = pointOffers.map((offer) => String(offer?.id ?? offer));
+
+  const selectedOffers = typeOffersObj.offers.filter((offer) =>
+    pointOfferIds.includes(String(offer.id))
+  );
+
+  if (selectedOffers.length === 0) {
+    return '';
+  }
+
+  return `
+    <h4 class="visually-hidden">Offers:</h4>
+    <ul class="event__selected-offers">
+      ${selectedOffers.map((offer) => `
+        <li class="event__offer">
+          <span class="event__offer-title">${offer.title}</span>
+          &plus;&euro;&nbsp;
+          <span class="event__offer-price">${offer.price}</span>
+        </li>
+      `).join('')}
+    </ul>
+  `;
+}
+
+function createEventTemplate(point, destination, allOffers) {
+  const {type, basePrice, isFavorite, dateFrom, dateTo, offers} = point;
   const {name} = destination;
   const favoriteClassName = isFavorite ? 'event__favorite-btn--active' : '';
 
@@ -25,6 +59,7 @@ function createEventTemplate(point, destination) {
         <p class="event__price">
           &euro;&nbsp;<span class="event__price-value">${basePrice}</span>
         </p>
+        ${createEventOffersTemplate(offers, allOffers, type)}
         <button class="event__favorite-btn ${favoriteClassName}" type="button">
           <span class="visually-hidden">Add to favorite</span>
           <svg class="event__favorite-icon" width="28" height="28" viewBox="0 0 28 28">
@@ -42,13 +77,15 @@ function createEventTemplate(point, destination) {
 export default class EventView extends AbstractView {
   #point = null;
   #destination = null;
+  #offers = null;
   #handleEditClick = null;
   #handleFavoriteClick = null;
 
-  constructor({point, destination, onEditClick, onFavoriteClick}) {
+  constructor({point, destination, offers, onEditClick, onFavoriteClick}) {
     super();
     this.#point = point;
     this.#destination = destination;
+    this.#offers = offers || [];
     this.#handleEditClick = onEditClick;
     this.#handleFavoriteClick = onFavoriteClick;
 
@@ -57,7 +94,7 @@ export default class EventView extends AbstractView {
   }
 
   get template() {
-    return createEventTemplate(this.#point, this.#destination);
+    return createEventTemplate(this.#point, this.#destination, this.#offers);
   }
 
   #editClickHandler = (evt) => {

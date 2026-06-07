@@ -31,7 +31,6 @@ export default class PointsApiService extends ApiService {
     return await ApiService.parseResponse(response);
   }
 
-  // Адаптер для отправки на сервер
   #adaptToServer(point) {
     const adaptedPoint = { ...point,
       'base_price': Number(point.basePrice),

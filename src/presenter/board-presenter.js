@@ -4,6 +4,7 @@ import SortView, {SortType} from '../view/sort-view.js';
 import EventListView from '../view/event-list-view.js';
 import NoPointView from '../view/no-point-view.js';
 import LoadingView from '../view/loading-view.js';
+import ErrorView from '../view/error-view.js';
 import PointPresenter from './point-presenter.js';
 import NewPointPresenter from './new-point-presenter.js';
 import {sortPointByPrice, sortPointByTime, sortPointByDay} from '../utils/sort.js';
@@ -42,7 +43,14 @@ export default class BoardPresenter {
     this.#newPointPresenter = new NewPointPresenter({
       pointListContainer: this.#eventListComponent.element,
       onDataChange: this.#handleViewAction,
-      onDestroy: onNewPointDestroy
+      onDestroy: () => {
+        if (onNewPointDestroy) {
+          onNewPointDestroy();
+        }
+        if (this.points.length === 0) {
+          this.#renderNoPoints();
+        }
+      }
     });
 
     this.#pointsModel.addObserver(this.#handleModelEvent);
@@ -72,6 +80,12 @@ export default class BoardPresenter {
   createPoint() {
     this.#currentSortType = SortType.DAY;
     this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
+
+    if (this.#noPointComponent) {
+      remove(this.#noPointComponent);
+      this.#noPointComponent = null;
+    }
+
     this.#newPointPresenter.init(this.#pointsModel.destinations, this.#pointsModel.offers);
   }
 
@@ -129,6 +143,12 @@ export default class BoardPresenter {
       case UpdateType.INIT:
         this.#isLoading = false;
         remove(this.#loadingComponent);
+
+        if (data && data.isError) {
+          render(new ErrorView(), this.#boardContainer, RenderPosition.AFTERBEGIN);
+          return;
+        }
+
         this.#renderBoard();
         break;
     }
