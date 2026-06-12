@@ -2,10 +2,8 @@ import AbstractView from '../framework/view/abstract-view.js';
 
 export const SortType = {
   DAY: 'day',
-  EVENT: 'event',
   TIME: 'time',
   PRICE: 'price',
-  OFFERS: 'offers'
 };
 
 function createSortTemplate(currentSortType) {

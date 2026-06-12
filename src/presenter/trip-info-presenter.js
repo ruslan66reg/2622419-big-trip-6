@@ -1,6 +1,14 @@
 import {render, replace, remove, RenderPosition} from '../framework/render.js';
+import he from 'he';
 import TripInfoView from '../view/trip-info-view.js';
 import {sortPointByDay} from '../utils/sort.js';
+import {getOffersByType} from '../model/points-model.js';
+
+const MAX_DISPLAYED_DESTINATIONS = 3;
+const FIRST_INDEX = 0;
+const LAST_INDEX_OFFSET = 1;
+const ROUTE_SEPARATOR = ' &mdash; ';
+const ROUTE_ELLIPSIS = ' &mdash; ... &mdash; ';
 
 export default class TripInfoPresenter {
   #tripInfoContainer = null;
@@ -50,15 +58,15 @@ export default class TripInfoPresenter {
 
   #calculateRoute(points, destinations) {
     const pointDestinations = points.map((point) => {
-      const dest = destinations.find((d) => d.id === point.destination);
-      return dest ? dest.name : '';
+      const destinationItem = destinations.find((item) => item.id === point.destination);
+      return destinationItem ? he.encode(destinationItem.name) : '';
     });
 
-    if (pointDestinations.length <= 3) {
-      return pointDestinations.join(' &mdash; ');
+    if (pointDestinations.length <= MAX_DISPLAYED_DESTINATIONS) {
+      return pointDestinations.join(ROUTE_SEPARATOR);
     }
 
-    return `${pointDestinations[0]} &mdash; ... &mdash; ${pointDestinations[pointDestinations.length - 1]}`;
+    return `${pointDestinations[FIRST_INDEX]}${ROUTE_ELLIPSIS}${pointDestinations[pointDestinations.length - LAST_INDEX_OFFSET]}`;
   }
 
   #calculateDates(points) {
@@ -77,7 +85,7 @@ export default class TripInfoPresenter {
     points.forEach((point) => {
       total += point.basePrice;
 
-      const pointTypeOffers = allOffers.find((offer) => offer.type === point.type);
+      const pointTypeOffers = getOffersByType(allOffers, point.type);
       if (pointTypeOffers) {
         point.offers.forEach((offerId) => {
           const selectedOffer = pointTypeOffers.offers.find((offer) => offer.id === offerId);

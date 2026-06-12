@@ -2,6 +2,8 @@ import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import {humanizeFormDate} from '../utils/date.js';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
+import he from 'he';
+import {getOffersByType} from '../model/points-model.js';
 
 const EVENT_TYPES = ['taxi', 'bus', 'train', 'ship', 'drive', 'flight', 'check-in', 'sightseeing', 'restaurant'];
 
@@ -30,9 +32,9 @@ function createOffersTemplate(offers, selectedOffers, isDisabled) {
       <div class="event__offer-selector">
         <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offer.id}" type="checkbox" name="event-offer-${offer.id}" data-offer-id="${offer.id}" ${isChecked} ${disabledState}>
         <label class="event__offer-label" for="event-offer-${offer.id}">
-          <span class="event__offer-title">${offer.title}</span>
+          <span class="event__offer-title">${he.encode(offer.title)}</span>
           &plus;&euro;&nbsp;
-          <span class="event__offer-price">${offer.price}</span>
+          <span class="event__offer-price">${he.encode(String(offer.price))}</span>
         </label>
       </div>`;
   }).join('');
@@ -52,11 +54,11 @@ function createDestinationTemplate(destination) {
     return '';
   }
 
-  const descriptionMarkup = destination.description ? `<p class="event__destination-description">${destination.description}</p>` : '';
+  const descriptionMarkup = destination.description ? `<p class="event__destination-description">${he.encode(destination.description)}</p>` : '';
   const picturesMarkup = destination.pictures && destination.pictures.length > 0
     ? `<div class="event__photos-container">
         <div class="event__photos-tape">
-          ${destination.pictures.map((pic) => `<img class="event__photo" src="${pic.src}" alt="${pic.description}">`).join('')}
+          ${destination.pictures.map((picture) => `<img class="event__photo" src="${he.encode(picture.src)}" alt="${he.encode(picture.description)}">`).join('')}
         </div>
       </div>`
     : '';
@@ -74,9 +76,9 @@ function createEventEditTemplate(state, allDestinations, allOffers) {
   const {id, type, basePrice, destination, dateFrom, dateTo, offers, isDisabled, isSaving, isDeleting} = state;
   const pointId = id || 'new';
 
-  const currentDestination = allDestinations.find((dest) => dest.id === destination);
-  const currentTypeOffers = allOffers.find((off) => off.type === type)?.offers || [];
-  const destinationOptions = allDestinations.map((dest) => `<option value="${dest.name}"></option>`).join('');
+  const currentDestination = allDestinations.find((destinationItem) => destinationItem.id === destination);
+  const currentTypeOffers = getOffersByType(allOffers, type)?.offers || [];
+  const destinationOptions = allDestinations.map((destinationItem) => `<option value="${he.encode(destinationItem.name)}"></option>`).join('');
 
   let isSubmitDisabled = isDisabled || !dateFrom || !dateTo || !destination;
   if (basePrice === null || basePrice === undefined || basePrice === '') {
@@ -116,7 +118,7 @@ function createEventEditTemplate(state, allDestinations, allOffers) {
 
           <div class="event__field-group  event__field-group--destination">
             <label class="event__label  event__type-output" for="event-destination-${pointId}">${type}</label>
-            <input class="event__input  event__input--destination" id="event-destination-${pointId}" type="text" name="event-destination" value="${currentDestination ? currentDestination.name : ''}" list="destination-list-${pointId}" ${disabledState} autocomplete="off">
+            <input class="event__input  event__input--destination" id="event-destination-${pointId}" type="text" name="event-destination" value="${currentDestination ? he.encode(currentDestination.name) : ''}" list="destination-list-${pointId}" ${disabledState} autocomplete="off">
             <datalist id="destination-list-${pointId}">
               ${destinationOptions}
             </datalist>
@@ -214,9 +216,9 @@ export default class EventEditView extends AbstractStatefulView {
       offersContainer.addEventListener('change', this.#offerChangeHandler);
     }
 
-    const rollupBtn = this.element.querySelector('.event__rollup-btn');
-    if (rollupBtn) {
-      rollupBtn.addEventListener('click', this.#rollupClickHandler);
+    const rollupButton = this.element.querySelector('.event__rollup-btn');
+    if (rollupButton) {
+      rollupButton.addEventListener('click', this.#rollupClickHandler);
     }
 
     this.#setDatepickers();
@@ -287,7 +289,7 @@ export default class EventEditView extends AbstractStatefulView {
 
   #destinationChangeHandler = (evt) => {
     evt.preventDefault();
-    const selectedDestination = this.#destinations.find((dest) => dest.name === evt.target.value);
+    const selectedDestination = this.#destinations.find((destinationItem) => destinationItem.name === evt.target.value);
 
     if (!selectedDestination) {
       evt.target.value = '';
@@ -321,12 +323,12 @@ export default class EventEditView extends AbstractStatefulView {
   };
 
   #checkSubmitButtonValidity() {
-    const submitBtn = this.element.querySelector('.event__save-btn');
+    const submitButton = this.element.querySelector('.event__save-btn');
     let isSubmitDisabled = !this._state.dateFrom || !this._state.dateTo || !this._state.destination;
     if (this._state.basePrice === null || this._state.basePrice === undefined || this._state.basePrice === '') {
       isSubmitDisabled = true;
     }
-    submitBtn.disabled = isSubmitDisabled;
+    submitButton.disabled = isSubmitDisabled;
   }
 
   #formSubmitHandler = (evt) => {

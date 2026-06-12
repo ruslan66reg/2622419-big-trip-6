@@ -2,6 +2,7 @@ import {render, replace, remove} from '../framework/render.js';
 import EventView from '../view/event-view.js';
 import EventEditView from '../view/event-edit-view.js';
 import {UserAction, UpdateType} from '../const.js';
+import {isEscapeKey} from '../utils/utils.js';
 
 const Mode = {
   DEFAULT: 'DEFAULT',
@@ -27,7 +28,8 @@ export default class PointPresenter {
     this.#point = point;
     const prevPointComponent = this.#pointComponent;
     const prevPointEditComponent = this.#pointEditComponent;
-    const currentDestination = allDestinations.find((dest) => dest.id === this.#point.destination);
+
+    const currentDestination = allDestinations.find((destinationItem) => destinationItem.id === this.#point.destination);
 
     this.#pointComponent = new EventView({
       point: this.#point,
@@ -125,7 +127,7 @@ export default class PointPresenter {
   }
 
   #escKeyDownHandler = (evt) => {
-    if (evt.key === 'Escape') {
+    if (isEscapeKey(evt)) {
       evt.preventDefault();
       this.#pointEditComponent.reset(this.#point);
       this.#replaceFormToCard();

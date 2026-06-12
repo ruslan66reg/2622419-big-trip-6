@@ -1,6 +1,7 @@
 import {remove, render, RenderPosition} from '../framework/render.js';
 import EventEditView from '../view/event-edit-view.js';
 import {UserAction, UpdateType, BLANK_POINT} from '../const.js';
+import {isEscapeKey} from '../utils/utils.js';
 
 export default class NewPointPresenter {
   #pointListContainer = null;
@@ -77,7 +78,7 @@ export default class NewPointPresenter {
   };
 
   #escKeyDownHandler = (evt) => {
-    if (evt.key === 'Escape' || evt.key === 'Esc') {
+    if (isEscapeKey(evt)) {
       evt.preventDefault();
       this.destroy();
     }

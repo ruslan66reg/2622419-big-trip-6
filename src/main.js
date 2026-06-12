@@ -12,7 +12,7 @@ const headerElement = document.querySelector('.page-header');
 const tripMainElement = document.querySelector('.trip-main');
 const filtersElement = headerElement.querySelector('.trip-controls__filters');
 const eventsElement = document.querySelector('.trip-events');
-const newEventButtonComponent = document.querySelector('.trip-main__event-add-btn');
+const newEventButtonElement = document.querySelector('.trip-main__event-add-btn');
 
 const pointsModel = new PointsModel({
   pointsApiService: new PointsApiService(END_POINT, AUTHORIZATION)
@@ -21,7 +21,7 @@ const pointsModel = new PointsModel({
 const filterModel = new FilterModel();
 
 const handleNewPointFormClose = () => {
-  newEventButtonComponent.disabled = false;
+  newEventButtonElement.disabled = false;
 };
 
 const tripInfoPresenter = new TripInfoPresenter({
@@ -42,10 +42,10 @@ const filterPresenter = new FilterPresenter({
   pointsModel
 });
 
-newEventButtonComponent.addEventListener('click', (evt) => {
+newEventButtonElement.addEventListener('click', (evt) => {
   evt.preventDefault();
   boardPresenter.createPoint();
-  newEventButtonComponent.disabled = true;
+  newEventButtonElement.disabled = true;
 });
 
 tripInfoPresenter.init();

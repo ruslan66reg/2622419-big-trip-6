@@ -1,19 +1,21 @@
 import AbstractView from '../framework/view/abstract-view.js';
 import {humanizePointDate, humanizePointTime, getPointDuration} from '../utils/date.js';
+import {getOffersByType} from '../model/points-model.js';
+import he from 'he';
 
 function createEventOffersTemplate(pointOffers, allOffers, type) {
   if (!pointOffers || pointOffers.length === 0 || !allOffers || allOffers.length === 0) {
     return '';
   }
 
-  const typeOffersObj = allOffers.find((off) => off.type === type);
-  if (!typeOffersObj || !typeOffersObj.offers) {
+  const typeOffersGroup = getOffersByType(allOffers, type);
+  if (!typeOffersGroup || !typeOffersGroup.offers) {
     return '';
   }
 
   const pointOfferIds = pointOffers.map((offer) => String(offer?.id ?? offer));
 
-  const selectedOffers = typeOffersObj.offers.filter((offer) =>
+  const selectedOffers = typeOffersGroup.offers.filter((offer) =>
     pointOfferIds.includes(String(offer.id))
   );
 
@@ -26,9 +28,9 @@ function createEventOffersTemplate(pointOffers, allOffers, type) {
     <ul class="event__selected-offers">
       ${selectedOffers.map((offer) => `
         <li class="event__offer">
-          <span class="event__offer-title">${offer.title}</span>
+          <span class="event__offer-title">${he.encode(offer.title)}</span>
           &plus;&euro;&nbsp;
-          <span class="event__offer-price">${offer.price}</span>
+          <span class="event__offer-price">${he.encode(String(offer.price))}</span>
         </li>
       `).join('')}
     </ul>
@@ -47,7 +49,7 @@ function createEventTemplate(point, destination, allOffers) {
         <div class="event__type">
           <img class="event__type-icon" width="42" height="42" src="img/icons/${type}.png" alt="Event type icon">
         </div>
-        <h3 class="event__title">${type} ${name}</h3>
+        <h3 class="event__title">${type} ${he.encode(name)}</h3>
         <div class="event__schedule">
           <p class="event__time">
             <time class="event__start-time" datetime="${dateFrom}">${humanizePointTime(dateFrom)}</time>
@@ -57,7 +59,7 @@ function createEventTemplate(point, destination, allOffers) {
           <p class="event__duration">${getPointDuration(dateFrom, dateTo)}</p>
         </div>
         <p class="event__price">
-          &euro;&nbsp;<span class="event__price-value">${basePrice}</span>
+          &euro;&nbsp;<span class="event__price-value">${he.encode(String(basePrice))}</span>
         </p>
         ${createEventOffersTemplate(offers, allOffers, type)}
         <button class="event__favorite-btn ${favoriteClassName}" type="button">
